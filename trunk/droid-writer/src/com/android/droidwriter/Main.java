@@ -19,7 +19,7 @@ import android.widget.ToggleButton;
 
 public class Main extends Activity {
 	
-	private static final String TAG = "RTEditor";
+	private static final String TAG = "DroidWriter";
 	
 	private int styleStart;
 	private int cursorLoc;
