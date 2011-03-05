@@ -11,33 +11,44 @@ import android.text.style.DynamicDrawableSpan;
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class Main extends Activity {
 	
+	// Log tag
 	private static final String TAG = "DroidWriter";
 	
-	private int styleStart;
-	private int cursorLoc;
+	// Style constants
+	private static final int STYLE_BOLD = 0;
+	private static final int STYLE_ITALIC = 1;
+	private static final int STYLE_UNDERLINED = 2;
 	
+	// Styling button references
 	private ToggleButton boldToggle;
 	private ToggleButton italicsToggle;
 	private ToggleButton underlineToggle;
 	private ToggleButton uListToggle;
 	private ToggleButton oListToggle;
 	
+	// Buttons for inserting images
 	private Button smiley1Button;
 	private Button smiley2Button;
 	private Button smiley3Button;
+	
+	// Misc widgets
 	private Button clearButton;
 	
+	// The mighty EditText
 	private EditText editor;
 	
-    /** Called when the activity is first created. */
+	// Some state variables
+	private int styleStart;
+	private int cursorLoc;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,119 +71,25 @@ public class Main extends Activity {
     	editor = (EditText)findViewById(R.id.Editor);
     	
     	// Handling the styling buttons
-    	
     	boldToggle.setOnClickListener(new Button.OnClickListener() {
 	            public void onClick(View v) {
-	                int selectionStart = editor.getSelectionStart();
-	
-	                styleStart = selectionStart;
-	
-	                int selectionEnd = editor.getSelectionEnd();
-	
-	                if (selectionStart > selectionEnd){
-	                    int temp = selectionEnd;
-	                    selectionEnd = selectionStart;
-	                    selectionStart = temp;
-	                }
-	
-	
-	                if (selectionEnd > selectionStart)
-	                {
-	                    Spannable str = editor.getText();
-	                    StyleSpan[] ss = str.getSpans(selectionStart, selectionEnd, StyleSpan.class);
-	
-	                    boolean exists = false;
-	                    for (int i = 0; i < ss.length; i++) {
-	                        if (ss[i].getStyle() == android.graphics.Typeface.BOLD){
-	                            str.removeSpan(ss[i]);
-	                            exists = true;
-	                        }
-	                    }
-	
-	                    if (!exists){
-	                        str.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-	                    }
-	
-	                    boldToggle.setChecked(false);
-	                }
+	            	toggleStyle(STYLE_BOLD);
 	            }
     	});
     	
     	italicsToggle.setOnClickListener(new Button.OnClickListener() {
 	            public void onClick(View v) {
-	                int selectionStart = editor.getSelectionStart();
-	
-	                styleStart = selectionStart;
-	
-	                int selectionEnd = editor.getSelectionEnd();
-	
-	                if (selectionStart > selectionEnd){
-	                    int temp = selectionEnd;
-	                    selectionEnd = selectionStart;
-	                    selectionStart = temp;
-	                }
-	
-	
-	                if (selectionEnd > selectionStart)
-	                {
-	                    Spannable str = editor.getText();
-	                    StyleSpan[] ss = str.getSpans(selectionStart, selectionEnd, StyleSpan.class);
-	
-	                    boolean exists = false;
-	                    for (int i = 0; i < ss.length; i++) {
-	                        if (ss[i].getStyle() == android.graphics.Typeface.ITALIC){
-	                            str.removeSpan(ss[i]);
-	                            exists = true;
-	                        }
-	                    }
-	
-	                    if (!exists){
-	                        str.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-	                    }
-	
-	                    italicsToggle.setChecked(false);
-	                }
+	                toggleStyle(STYLE_ITALIC);
 	            }
 		});
     	
     	underlineToggle.setOnClickListener(new Button.OnClickListener() {
 	            public void onClick(View v) {
-	                int selectionStart = editor.getSelectionStart();
-	
-	                styleStart = selectionStart;
-	
-	                int selectionEnd = editor.getSelectionEnd();
-	
-	                if (selectionStart > selectionEnd){
-	                    int temp = selectionEnd;
-	                    selectionEnd = selectionStart;
-	                    selectionStart = temp;
-	                }
-	
-	
-	                if (selectionEnd > selectionStart)
-	                {
-	                    Spannable str = editor.getText();
-	                    UnderlineSpan[] ss = str.getSpans(selectionStart, selectionEnd, UnderlineSpan.class);
-	
-	                    boolean exists = false;
-	                    for (int i = 0; i < ss.length; i++) {
-	                        //if (ss[i].getStyle() == android.graphics.Typeface.BOLD){
-	                            str.removeSpan(ss[i]);
-	                            exists = true;
-	                        //}
-	                    }
-	
-	                    if (!exists){
-	                        str.setSpan(new UnderlineSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-	                    }
-	
-	                    underlineToggle.setChecked(false);
-	                }
+	                toggleStyle(STYLE_UNDERLINED);
 	            }
 		});
     	
-    	// Handling the smiley buttons
+    	// Handling the image inserting buttons
     	
     	smiley1Button.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -211,7 +128,10 @@ public class Main extends Activity {
     	
     	editor.addTextChangedListener(new TextWatcher() { 
 	            public void afterTextChanged(Editable s) { 
-	                //add style as the user types if a toggle button is enabled
+	                // When the user types in new characters, we react to this with applying
+	            	// the selected style(s) onto this new character.
+	            	
+	            	// Add style as the user types if a toggle button is enabled
 	                int position = Selection.getSelectionStart(editor.getText());
 	                if (position < 0){
 	                    position = 0;
@@ -220,7 +140,7 @@ public class Main extends Activity {
 	                if (position > 0){
 	
 	                    if (styleStart > position || position > (cursorLoc + 1)){
-	                        //user changed cursor location, reset
+	                        // The user changed cursor location, reset styleStart
 	                        styleStart = position - 1;
 	                    }
 	
@@ -234,7 +154,8 @@ public class Main extends Activity {
 	                                s.removeSpan(ss[i]);
 	                            }
 	                        }
-	                        s.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), styleStart, position, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	                        s.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), styleStart, 
+	                        		position, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	                    }
 	                    
 	                    if (italicsToggle.isChecked()){  
@@ -245,35 +166,119 @@ public class Main extends Activity {
 	                                s.removeSpan(ss[i]);
 	                            }
 	                        }
-	                        s.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC), styleStart, position, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	                        s.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC), styleStart, 
+	                        		position, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	                    }
 	                    
 	                    if (underlineToggle.isChecked()){  
 	                    	UnderlineSpan[] ss = s.getSpans(styleStart, position, UnderlineSpan.class);
 	
 	                        for (int i = 0; i < ss.length; i++) {
-	                            //if (ss[i].getStyle() == android.graphics.Typeface.ITALIC){
-	                                s.removeSpan(ss[i]);
-	                            //}
+	                            s.removeSpan(ss[i]);
 	                        }
-	                        s.setSpan(new UnderlineSpan(), styleStart, position, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	                        s.setSpan(new UnderlineSpan(), styleStart, 
+	                        		position, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	                    }
 	                }
-	            } 
+	            }
+	            
 	            public void beforeTextChanged(CharSequence s, int start, int count, int after) { 
-	                    //unused
+	                    // Unused
 	            } 
+	            
 	            public void onTextChanged(CharSequence s, int start, int before, int count) { 
-	                    //unused
+	                    // Unused
 	            } 
     	});
     	
+    	// Clear the entered text
     	clearButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//editor.setText("");
-				Toast.makeText(getApplicationContext(), editor.getText().toString(), Toast.LENGTH_SHORT).show();
+				editor.setText("");
 			}
 		});
+    
     }
+    
+    private void toggleStyle(int style){
+    	// Gets the current cursor position, or the starting position of the selection
+        int selectionStart = editor.getSelectionStart();
+        styleStart = selectionStart;
+
+        // Gets the current cursor position, or the end position of the selection
+        // Note: The end can be smaller than the start
+        int selectionEnd = editor.getSelectionEnd();
+        
+        // Reverse if the case is what's noted above
+        if (selectionStart > selectionEnd){
+            int temp = selectionEnd;
+            selectionEnd = selectionStart;
+            selectionStart = temp;
+        }
+
+        if (selectionEnd > selectionStart)
+        {
+            Spannable str = editor.getText();
+            boolean exists = false;
+            StyleSpan[] styleSpans;
+            
+            switch(style){
+            case STYLE_BOLD:
+            	styleSpans = str.getSpans(selectionStart, selectionEnd, StyleSpan.class);
+            	
+            	// If the selected text-part already has BOLD style on it, then we need to disable it
+                for (int i = 0; i < styleSpans.length; i++) {
+                    if (styleSpans[i].getStyle() == android.graphics.Typeface.BOLD){
+                        str.removeSpan(styleSpans[i]);
+                        exists = true;
+                    }
+                }
+                
+                // Else we set BOLD style on it
+                if (!exists){
+                    str.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), selectionStart, 
+                    		selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+
+                boldToggle.setChecked(false);
+            	break;
+            case STYLE_ITALIC:
+            	styleSpans = str.getSpans(selectionStart, selectionEnd, StyleSpan.class);
+            	
+            	// If the selected text-part already has ITALIC style on it, then we need to disable it
+                for (int i = 0; i < styleSpans.length; i++) {
+                    if (styleSpans[i].getStyle() == android.graphics.Typeface.ITALIC){
+                        str.removeSpan(styleSpans[i]);
+                        exists = true;
+                    }
+                }
+                
+                // Else we set ITALIC style on it
+                if (!exists){
+                    str.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC), selectionStart, 
+                    		selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+
+                italicsToggle.setChecked(false);
+            	break;
+            case STYLE_UNDERLINED:
+            	UnderlineSpan[] underSpan = str.getSpans(selectionStart, selectionEnd, UnderlineSpan.class);
+            	
+            	// If the selected text-part already has UNDERLINE style on it, then we need to disable it
+                for (int i = 0; i < underSpan.length; i++) {
+                    str.removeSpan(underSpan[i]);
+                    exists = true;
+                }
+                
+                // Else we set UNDERLINE style on it
+                if (!exists){
+                    str.setSpan(new UnderlineSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+
+                underlineToggle.setChecked(false);
+            	break;
+            }
+        }
+	}
 }
