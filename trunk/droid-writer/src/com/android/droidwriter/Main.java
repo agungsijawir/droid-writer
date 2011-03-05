@@ -4,20 +4,25 @@ import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Layout;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.TextWatcher;
+import android.text.style.AlignmentSpan;
+import android.text.style.BulletSpan;
 import android.text.style.DynamicDrawableSpan;
 import android.text.style.ImageSpan;
+import android.text.style.QuoteSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebStorage.QuotaUpdater;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ToggleButton;
 
-public class Main extends Activity {
+public class Main extends Activity implements SelectionChangedListener {
 	
 	// Log tag
 	private static final String TAG = "DroidWriter";
@@ -26,6 +31,10 @@ public class Main extends Activity {
 	private static final int STYLE_BOLD = 0;
 	private static final int STYLE_ITALIC = 1;
 	private static final int STYLE_UNDERLINED = 2;
+	private static final int STYLE_ALIGN_NORMAL = 3;
+	private static final int STYLE_ALIGN_CENTER = 4;
+	private static final int STYLE_ALIGN_OPPOSITE = 5;
+	private static final int STYLE_TEST = 20;
 	
 	// Styling button references
 	private ToggleButton boldToggle;
@@ -34,6 +43,11 @@ public class Main extends Activity {
 	private ToggleButton uListToggle;
 	private ToggleButton oListToggle;
 	
+	// Alignment button references
+	private ToggleButton normalAlignToggle;
+	private ToggleButton centerAlignToggle;
+	private ToggleButton oppositeAlignToggle;
+	
 	// Buttons for inserting images
 	private Button smiley1Button;
 	private Button smiley2Button;
@@ -41,9 +55,10 @@ public class Main extends Activity {
 	
 	// Misc widgets
 	private Button clearButton;
+	private Button testButton;
 	
 	// The mighty EditText
-	private EditText editor;
+	private WriterEditText editor;
 	
 	// Some state variables
 	private int styleStart;
@@ -67,13 +82,20 @@ public class Main extends Activity {
     	smiley2Button = (Button)findViewById(R.id.SmileyButton2);
     	smiley3Button = (Button)findViewById(R.id.SmileyButton3);
     	clearButton = (Button)findViewById(R.id.ClearButton);
+    	testButton = (Button)findViewById(R.id.TestButton);
     	
-    	editor = (EditText)findViewById(R.id.Editor);
+    	normalAlignToggle = (ToggleButton)findViewById(R.id.AlignNormalToggle);
+    	centerAlignToggle = (ToggleButton)findViewById(R.id.AlignCenterToggle);
+    	oppositeAlignToggle = (ToggleButton)findViewById(R.id.AlignOppositeToggle);
+    	
+    	editor = (WriterEditText)findViewById(R.id.Editor);
+    	editor.setOnSelectionChangedListener(this);
     	
     	// Handling the styling buttons
     	boldToggle.setOnClickListener(new Button.OnClickListener() {
 	            public void onClick(View v) {
 	            	toggleStyle(STYLE_BOLD);
+	            	Log.d(TAG, "bold toggle!");
 	            }
     	});
     	
@@ -88,6 +110,24 @@ public class Main extends Activity {
 	                toggleStyle(STYLE_UNDERLINED);
 	            }
 		});
+    	
+    	normalAlignToggle.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                toggleStyle(STYLE_ALIGN_NORMAL);
+            }
+    	});
+    	
+    	centerAlignToggle.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                toggleStyle(STYLE_ALIGN_CENTER);
+            }
+    	});
+    	
+    	oppositeAlignToggle.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                toggleStyle(STYLE_ALIGN_OPPOSITE);
+            }
+    	});
     	
     	// Handling the image inserting buttons
     	
@@ -198,6 +238,13 @@ public class Main extends Activity {
 				editor.setText("");
 			}
 		});
+    	
+    	testButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				toggleStyle(STYLE_TEST);
+			}
+		});
     
     }
     
@@ -222,6 +269,7 @@ public class Main extends Activity {
             Spannable str = editor.getText();
             boolean exists = false;
             StyleSpan[] styleSpans;
+            AlignmentSpan.Standard[] alignSpan;
             
             switch(style){
             case STYLE_BOLD:
@@ -278,7 +326,83 @@ public class Main extends Activity {
 
                 underlineToggle.setChecked(false);
             	break;
+            case STYLE_ALIGN_NORMAL:
+            	alignSpan = str.getSpans(selectionStart, selectionEnd, AlignmentSpan.Standard.class);
+            	
+            	// If the selected text-part already has UNDERLINE style on it, then we need to disable it
+                for (int i = 0; i < alignSpan.length; i++) {
+                    str.removeSpan(alignSpan[i]);
+                    exists = true;
+                }
+                
+                // Else we set UNDERLINE style on it
+                if (!exists){
+                    str.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_NORMAL), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            	break;
+            case STYLE_ALIGN_CENTER:
+            	alignSpan = str.getSpans(selectionStart, selectionEnd, AlignmentSpan.Standard.class);
+            	
+            	// If the selected text-part already has UNDERLINE style on it, then we need to disable it
+                for (int i = 0; i < alignSpan.length; i++) {
+                    str.removeSpan(alignSpan[i]);
+                    exists = true;
+                }
+                
+                // Else we set UNDERLINE style on it
+                if (!exists){
+                    str.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            	break;
+            case STYLE_ALIGN_OPPOSITE:
+            	alignSpan = str.getSpans(selectionStart, selectionEnd, AlignmentSpan.Standard.class);
+            	
+            	// If the selected text-part already has UNDERLINE style on it, then we need to disable it
+                for (int i = 0; i < alignSpan.length; i++) {
+                    str.removeSpan(alignSpan[i]);
+                    exists = true;
+                }
+                
+                // Else we set UNDERLINE style on it
+                if (!exists){
+                    str.setSpan(new AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            	break;
+            case STYLE_TEST:
+            	BulletSpan[] quoteSpan = str.getSpans(selectionStart, selectionEnd, BulletSpan.class);
+            	
+            	// If the selected text-part already has UNDERLINE style on it, then we need to disable it
+                for (int i = 0; i < quoteSpan.length; i++) {
+                    str.removeSpan(quoteSpan[i]);
+                    exists = true;
+                }
+                
+                // Else we set UNDERLINE style on it
+                if (!exists){
+                    str.setSpan(new BulletSpan(), selectionStart, selectionEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            	break;
             }
         }
+	}
+
+	@Override
+	public void onSelectionChanged(int selStart, int selEnd) {
+		Log.d(TAG, "Selection changed selStart:"+selStart+ " selEnd:"+selEnd);
+		/*
+		if(selStart > 0){
+			Spannable str = editor.getText();
+			StyleSpan[] styleSpans = str.getSpans(selStart - 1, selStart, StyleSpan.class);
+	    	boolean exists = false;
+			
+	    	// If the selected text-part already has BOLD style on it, then we need to disable it
+	        for (int i = 0; i < styleSpans.length; i++) {
+	            if (styleSpans[i].getStyle() == android.graphics.Typeface.BOLD){
+	                exists = true;
+	            }
+	        }
+	        if(exists)boldToggle.setChecked(true);
+	        else boldToggle.setChecked(false);
+		}*/
 	}
 }

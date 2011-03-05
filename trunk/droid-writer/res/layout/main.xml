@@ -68,6 +68,37 @@
 		android:layout_height="wrap_content"
 		android:orientation="horizontal">
 		
+		<ToggleButton android:id="@+id/AlignNormalToggle"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:textSize="18dip"
+			android:textStyle="bold"
+			android:textOn="Normal"
+			android:textOff="Normal"/>
+			
+		<ToggleButton android:id="@+id/AlignCenterToggle"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:textSize="18dip"
+			android:textStyle="bold"
+			android:textOn="Center"
+			android:textOff="Center"/>
+			
+		<ToggleButton android:id="@+id/AlignOppositeToggle"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:textSize="18dip"
+			android:textStyle="bold"
+			android:textOn="Opposite"
+			android:textOff="Opposite"/>
+		
+	</LinearLayout>
+	
+	<LinearLayout 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+		
 		<Button android:id="@+id/SmileyButton1"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
@@ -88,12 +119,12 @@
 		
 	</LinearLayout>
 	
-	<EditText android:id="@+id/Editor"
+	<com.android.droidwriter.WriterEditText android:id="@+id/Editor"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:textSize="18dip"
-		android:minLines="8"
-		android:maxLines="8"
+		android:minLines="5"
+		android:maxLines="5"
 		android:gravity="top" />
 		
 	<Button android:id="@+id/ClearButton"
@@ -101,6 +132,12 @@
 		android:layout_width="wrap_content"
 		android:textSize="18dip"
 		android:text="Clear"/>
+		
+	<Button android:id="@+id/TestButton"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:textSize="18dip"
+		android:text="Test"/>
 	    
 </LinearLayout>
 </ScrollView>
