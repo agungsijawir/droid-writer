@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-<color name="home_screen_background">#454545</color>
-<color name="side_menu_background">#353535</color>
-<color name="main_menu_text">#FFFFFF</color>
-<color name="white">#FFFFFF</color>
-<color name="black">#000000</color>
-<color name="lightgrey">#C9C9C9</color>
-</resources>
