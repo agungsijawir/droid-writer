@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DroidWriterDemo</string>
+    
+	<string name="screen_title">Droid Writer Demo</string>
+	<string name="button_clear">Clear</string>
+	
+	<string name="description_cool_smiley">Cool Smiley Button</string>
+	<string name="description_crying_smiley">Crying Smiley button</string>
+</resources>
