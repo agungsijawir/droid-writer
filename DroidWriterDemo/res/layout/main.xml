@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dip"
+            android:gravity="center_horizontal"
+            android:text="@string/screen_title"
+            android:textColor="@android:color/black"
+            android:textSize="28dip" />
+
+        <!-- Styling buttons -->
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <ToggleButton
+                android:id="@+id/BoldButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="B"
+                android:textOn="B"
+                android:textStyle="bold" />
+
+            <ToggleButton
+                android:id="@+id/ItalicsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="I"
+                android:textOn="I"
+                android:textStyle="italic" />
+
+            <ToggleButton
+                android:id="@+id/UnderlineButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="U"
+                android:textOn="U" />
+
+            <ImageButton
+                android:id="@+id/CoolButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_cool_smiley"
+                android:src="@drawable/smiley_cool" />
+
+            <ImageButton
+                android:id="@+id/CryButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_crying_smiley"
+                android:src="@drawable/smiley_cry" />
+
+            <Button
+                android:id="@+id/ClearButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/button_clear"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <hu.scythe.droidwriter.DroidWriterEditText
+            android:id="@+id/DwEdit"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:inputType="textCapSentences|textVisiblePassword"
+            android:minLines="10" />
+    </LinearLayout>
+
+</ScrollView>
